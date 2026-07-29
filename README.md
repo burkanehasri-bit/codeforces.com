@@ -16,6 +16,7 @@ Examples
 Input
 
 6 6 4
+
 Output
 
 4
@@ -63,6 +64,7 @@ Input
 R23C55
 
 BC23
+
 Output
 
 BC23
