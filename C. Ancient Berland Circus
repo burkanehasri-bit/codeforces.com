@@ -1,0 +1,91 @@
+C. Ancient Berland Circus
+
+Nowadays all circuses in Berland have a round arena with diameter 13 meters, but in the past things were different.
+
+In Ancient Berland arenas in circuses were shaped as a regular (equiangular) polygon, the size and the number of angles could vary from one circus to another. In each corner of the arena there was a special pillar, and the rope strung between the pillars marked the arena edges.
+
+Recently the scientists from Berland have discovered the remains of the ancient circus arena. They found only three pillars, the others were destroyed by the time.
+
+You are given the coordinates of these three pillars. Find out what is the smallest area that the arena could have.
+
+Input
+The input file consists of three lines, each of them contains a pair of numbers –– coordinates of the pillar. Any coordinate doesn't exceed 1000 by absolute value, and is given with at most six digits after decimal point.
+
+Output
+Output the smallest possible area of the ancient arena. This number should be accurate to at least 6 digits after the decimal point. It's guaranteed that the number of angles in the optimal polygon is not larger than 100.
+
+Examples
+
+Input
+
+0.000000 0.000000
+
+1.000000 1.000000
+
+0.000000 1.000000
+
+Output
+
+1.00000000
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        
+        double[] x = new double[3];
+        double[] y = new double[3];
+        
+        for (int i = 0; i < 3; i++) {
+            String[] tokens = br.readLine().trim().split("\\s+");
+            x[i] = Double.parseDouble(tokens[0]);
+            y[i] = Double.parseDouble(tokens[1]);
+        }
+        
+        // Calculate side lengths
+        double a = Math.hypot(x[0] - x[1], y[0] - y[1]);
+        double b = Math.hypot(x[1] - x[2], y[1] - y[2]);
+        double c = Math.hypot(x[2] - x[0], y[2] - y[0]);
+        
+        // Calculate area of the triangle via Heron's formula
+        double s = (a + b + c) / 2.0;
+        double areaTri = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+        
+        // Calculate circumradius R
+        double r = (a * b * c) / (4.0 * areaTri);
+        
+        // Calculate the central angles subtended by the sides
+        double alpha = Math.acos(clamp(1.0 - (a * a) / (2.0 * r * r)));
+        double beta = Math.acos(clamp(1.0 - (b * b) / (2.0 * r * r)));
+        double gamma = 2.0 * Math.PI - (alpha + beta);
+        
+        // Find the absolute greatest common divisor among the central angles
+        double angleGcd = gcd(alpha, gcd(beta, gamma));
+        
+        // Number of sides n
+        double n = (2.0 * Math.PI) / angleGcd;
+        
+        // Total area of the minimal regular polygon
+        double totalArea = 0.5 * n * r * r * Math.sin(2.0 * Math.PI / n);
+        
+        System.out.printf("%.8f\n", totalArea);
+    }
+    
+    // Floating point GCD using Euclidean algorithm with tolerance
+    private static double gcd(double a, double b) {
+        while (Math.abs(b) > 1e-4) {
+            double temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+    
+    // Clamp to bypass floating point imprecisions outside [-1, 1] range for acos
+    private static double clamp(double val) {
+        return Math.max(-1.0, Math.min(1.0, val));
+    }
+}
