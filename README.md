@@ -220,7 +220,7 @@ public class Main {
 }
 
 C. Ancient Berland Circus
-
+-------------------------
 
 Nowadays all circuses in Berland have a round arena with diameter 13 meters, but in the past things were different.
 
