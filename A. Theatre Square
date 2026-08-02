@@ -1,16 +1,17 @@
-import java.util.Scanner;
+#include <iostream>
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+using namespace std;
 
-        long n = sc.nextLong();
-        long m = sc.nextLong();
-        long a = sc.nextLong();
-
-        long x = (n + a - 1) / a; // ceil(n/a)
-        long y = (m + a - 1) / a; // ceil(m/a)
-
-        System.out.println(x * y);
-    }
+int main() {
+    // Using long long to prevent 32-bit overflow
+    long long n, m, a;
+    cin >> n >> m >> a;
+    
+    // Efficient integer arithmetic for ceiling division
+    long long stones_n = (n + a - 1) / a;
+    long long stones_m = (m + a - 1) / a;
+    
+    cout << stones_n * stones_m << endl;
+    return 0;
 }
+
