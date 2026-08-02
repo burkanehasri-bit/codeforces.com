@@ -76,60 +76,71 @@ R23C55
 
 CODE
 ----
-import java.io.*;
-import java.util.regex.*;
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <cctype>
 
-public class Main {
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+using namespace std;
 
-        int n = Integer.parseInt(br.readLine());
+// Helper to check if string matches RXCY pattern
+bool is_rxcy(const string& s) {
+    if (s[0] != 'R' || !isdigit(s[1])) return false;
+    size_t c_pos = s.find('C', 1);
+    if (c_pos == string::npos || c_pos == s.length() - 1) return false;
+    return isdigit(s[c_pos + 1]);
+}
 
-        Pattern p = Pattern.compile("^R\\d+C\\d+$");
-
-        StringBuilder ans = new StringBuilder();
-
-        for (int i = 0; i < n; i++) {
-            String s = br.readLine();
-
-            if (p.matcher(s).matches()) {
-                // RXCY -> Excel
-                int cPos = s.indexOf('C');
-                int row = Integer.parseInt(s.substring(1, cPos));
-                int col = Integer.parseInt(s.substring(cPos + 1));
-
-                StringBuilder colName = new StringBuilder();
-
-                while (col > 0) {
-                    col--;
-                    colName.append((char) ('A' + (col % 26)));
-                    col /= 26;
-                }
-
-                ans.append(colName.reverse()).append(row).append("\n");
-
-            } else {
-                // Excel -> RXCY
-                int idx = 0;
-                while (idx < s.length() && Character.isLetter(s.charAt(idx))) {
-                    idx++;
-                }
-
-                String letters = s.substring(0, idx);
-                String row = s.substring(idx);
-
-                long col = 0;
-                for (char ch : letters.toCharArray()) {
-                    col = col * 26 + (ch - 'A' + 1);
-                }
-
-                ans.append("R").append(row).append("C").append(col).append("\n");
+void solve() {
+    int n;
+    if (!(cin >> n)) return;
+    
+    while (n--) {
+        string s;
+        cin >> s;
+        
+        if (is_rxcy(s)) {
+            // RXCY -> Excel
+            size_t c_pos = s.find('C');
+            string row = s.substr(1, c_pos - 1);
+            int col = stoi(s.substr(c_pos + 1));
+            
+            string col_str = "";
+            while (col > 0) {
+                col--;
+                col_str += (char)('A' + (col % 26));
+                col /= 26;
             }
+            reverse(col_str.begin(), col_str.end());
+            cout << col_str << row << "\n";
+        } else {
+            // Excel -> RXCY
+            size_t i = 0;
+            while (!isdigit(s[i])) i++;
+            
+            string col_letters = s.substr(0, i);
+            string row = s.substr(i);
+            
+            long long col_num = 0;
+            for (char c : col_letters) {
+                col_num = col_num * 26 + (c - 'A' + 1);
+            }
+            cout << "R" << row << "C" << col_num << "\n";
         }
-
-        System.out.print(ans);
     }
 }
+
+int main() {
+    // Fast I/O for performance with 10^5 coordinate inputs
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    solve();
+    return 0;
+}
+
+<img width="607" height="594" alt="image" src="https://github.com/user-attachments/assets/75d30969-9674-409f-b884-e8ccad28402e" />
+
 
 
 
@@ -176,51 +187,59 @@ andrew
 
 CODE:
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+#include <iostream>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include <algorithm>
 
-public class Main {
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine().trim());
+using namespace std;
 
-        String[] names = new String[n];
-        int[] scores = new int[n];
-        Map<String, Integer> finalScores = new HashMap<>();
+int main() {
+    // Fast I/O
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
-        // Pass 1: Parse input and find the final scores of all players
-        for (int i = 0; i < n; i++) {
-            String[] parts = br.readLine().split(" ");
-            names[i] = parts[0];
-            scores[i] = Integer.parseInt(parts[1]);
-            
-            finalScores.put(names[i], finalScores.getOrDefault(names[i], 0) + scores[i]);
-        }
+    int n;
+    if (!(cin >> n)) return 0;
 
-        // Find the maximum final score among all players
-        int maxScore = Integer.MIN_VALUE;
-        for (int score : finalScores.values()) {
-            if (score > maxScore) {
-                maxScore = score;
-            }
-        }
+    // To store the chronological history of rounds
+    vector<pair<string, int>> rounds(n);
+    // To calculate the final total scores
+    unordered_map<string, int> final_scores;
 
-        // Pass 2: Re-simulate to find who reached >= maxScore first
-        Map<String, Integer> currentScores = new HashMap<>();
-        for (int i = 0; i < n; i++) {
-            currentScores.put(names[i], currentScores.getOrDefault(names[i], 0) + scores[i]);
-            
-            // Candidate must reach >= maxScore AND must finish the game with exactly maxScore
-            if (currentScores.get(names[i]) >= maxScore && finalScores.get(names[i]) == maxScore) {
-                System.out.println(names[i]);
-                return;
-            }
+    for (int i = 0; i < n; ++i) {
+        cin >> rounds[i].first >> rounds[i].second;
+        final_scores[rounds[i].first] += rounds[i].second;
+    }
+
+    // Find the maximum final score among all players
+    int max_score = -1e9;
+    for (auto const& [name, score] : final_scores) {
+        if (score > max_score) {
+            max_score = score;
         }
     }
+
+    // Replay the game to find who reached >= max_score first
+    unordered_map<string, int> current_scores;
+    for (int i = 0; i < n; ++i) {
+        string name = rounds[i].first;
+        int score = rounds[i].second;
+        
+        current_scores[name] += score;
+        
+        // Condition: Running score >= max_score AND their FINAL score equals max_score
+        if (current_scores[name] >= max_score && final_scores[name] == max_score) {
+            cout << name << "\n";
+            return 0;
+        }
+    }
+
+    return 0;
 }
+<img width="920" height="513" alt="image" src="https://github.com/user-attachments/assets/6509aa01-d671-4097-b493-5ae4e3b2d4de" />
+
 
 C. Ancient Berland Circus
 -------------------------
