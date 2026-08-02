@@ -23,22 +23,25 @@ Output
 
 CODE
 ----
-import java.util.Scanner;
+#include <iostream>
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+using namespace std;
 
-        long n = sc.nextLong();
-        long m = sc.nextLong();
-        long a = sc.nextLong();
-
-        long rows = (n + a - 1) / a; // ceil(n/a)
-        long cols = (m + a - 1) / a; // ceil(m/a)
-
-        System.out.println(rows * cols);
-    }
+int main() {
+    // Using long long to prevent 32-bit overflow
+    long long n, m, a;
+    cin >> n >> m >> a;
+    
+    // Efficient integer arithmetic for ceiling division
+    long long stones_n = (n + a - 1) / a;
+    long long stones_m = (m + a - 1) / a;
+    
+    cout << stones_n * stones_m << endl;
+    return 0;
 }
+
+<img width="572" height="140" alt="image" src="https://github.com/user-attachments/assets/8fb00cc8-0f9c-42ce-be57-a1241c533800" />
+
 
 B. Spreadsheets
 ----------------
